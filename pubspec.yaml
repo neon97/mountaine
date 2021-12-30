@@ -37,6 +37,8 @@ dependencies:
   google_fonts:
   http:
   image_picker:
+  firebase_core:
+  cloud_firestore:
   # url_launcher:
 
 dev_dependencies:
