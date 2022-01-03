@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectflutter/api.dart';
+import 'package:projectflutter/constant.dart';
 import 'package:projectflutter/models/LoginModel.dart';
 import 'package:projectflutter/networkHelper.dart';
 import 'package:projectflutter/view/homescreen.dart';
@@ -147,14 +148,14 @@ class _LoginPageState extends State<LoginPage> {
     if (_formkey.currentState!.validate()) {
       //! loader i have show here
       loader(context);
-      LoginModel loginModel = await _getLogin();
+      loginGlobalModel = await _getLogin();
 
       //!removing the loader as we have got the reponse from api
       Navigator.pop(context);
-      if (loginModel.status! == "true") {
+      if (loginGlobalModel!.status! == "true") {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => Homescreenpage(
-                  loginModel: loginModel,
+                  loginModel: loginGlobalModel!,
                 )));
       } else {
         showDialog(
@@ -162,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
             context: context,
             builder: (context) => AlertDialog(
                   title: Text("Alert !!"),
-                  content: Text(loginModel.messageinfo!),
+                  content: Text(loginGlobalModel!.messageinfo!),
                   actions: [
                     TextButton(
                         onPressed: () {

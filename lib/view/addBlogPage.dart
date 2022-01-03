@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:projectflutter/constant.dart';
+import 'package:projectflutter/models/BloglistModel.dart';
 
 class AddBlogPage extends StatefulWidget {
   @override
@@ -18,6 +20,12 @@ class _AddBlogPageState extends State<AddBlogPage> {
     _image = await _picker.pickImage(source: source);
     setState(() {});
   }
+
+  //!controllers
+  final description = TextEditingController();
+  final image = TextEditingController();
+  final mountName = TextEditingController();
+  final statement = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +57,45 @@ class _AddBlogPageState extends State<AddBlogPage> {
                                 child: _accesImage(),
                               )),
                       child: Image.file(File(_image!.path))),
-            )
+            ),
+
+//!image dummy
+            TextFormField(
+              controller: image,
+            ),
+
+//!mountain name
+            TextFormField(
+              controller: mountName,
+            ),
+
+//!description
+            TextFormField(
+              controller: description,
+            ),
+
+//!statments
+            TextFormField(
+              controller: statement,
+            ),
+
+//!create button
+            ElevatedButton(
+                onPressed: () async {
+                  BlogListModel _blog = BlogListModel(
+                      description: description.text,
+                      image: image.text,
+                      liked: false,
+                      likes: 0,
+                      mountName: mountName.text,
+                      statement: statement.text,
+                      bloggerName: loginGlobalModel!.bloggerName!);
+                  BlogListModelDataRepo _blogController =
+                      BlogListModelDataRepo();
+                  await _blogController.createBlogData(_blog);
+                  Navigator.pop(context);
+                },
+                child: Text("Post Blog"))
           ],
         ),
       ),
