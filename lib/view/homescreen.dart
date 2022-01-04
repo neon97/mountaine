@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:projectflutter/controller/emailSignin.dart';
 import 'package:projectflutter/models/BloglistModel.dart';
 import 'package:projectflutter/models/LoginModel.dart';
 import 'package:projectflutter/view/addBlogPage.dart';
@@ -7,8 +8,8 @@ import 'package:projectflutter/view/blogDetailScreen.dart';
 import 'package:projectflutter/view/settingsPage.dart';
 
 class Homescreenpage extends StatefulWidget {
-  final LoginModel loginModel;
-  Homescreenpage({required this.loginModel});
+  // final LoginModel loginModel;
+  // Homescreenpage({required this.loginModel});
   @override
   _HomescreenpageState createState() => _HomescreenpageState();
 }
@@ -54,7 +55,7 @@ class _HomescreenpageState extends State<Homescreenpage> {
                 }
               })),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddBlogPage()));
         },
@@ -62,7 +63,7 @@ class _HomescreenpageState extends State<Homescreenpage> {
           Icons.add,
         ),
       ),
-      drawer: _drawer(),
+      // drawer: _drawer(),
     );
   }
 
@@ -74,40 +75,40 @@ class _HomescreenpageState extends State<Homescreenpage> {
         });
   }
 
-  _drawer() {
-    return Drawer(
-      child: Column(
-        children: [
-          UserAccountsDrawerHeader(
-              currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage(widget.loginModel.image!),
-              ),
-              accountName: Text(widget.loginModel.bloggerName!),
-              accountEmail: Text(widget.loginModel.email!)),
-          ListTile(
-            title: Text("Home Page"),
-            leading: Icon(Icons.home),
-          ),
-          ListTile(
-            title: Text("Trending Page"),
-            leading: Icon(Icons.trending_up),
-          ),
-          ListTile(
-            onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SettingsPage()));
-            },
-            title: Text("Settings Page"),
-            leading: Icon(Icons.settings),
-          ),
-          ListTile(
-            title: Text("About Page"),
-            leading: Icon(Icons.person),
-          )
-        ],
-      ),
-    );
-  }
+  // _drawer() {
+  //   return Drawer(
+  //     child: Column(
+  //       children: [
+  //         UserAccountsDrawerHeader(
+  //             currentAccountPicture: CircleAvatar(
+  //               backgroundImage: NetworkImage(widget.loginModel.image!),
+  //             ),
+  //             accountName: Text(widget.loginModel.bloggerName!),
+  //             accountEmail: Text(widget.loginModel.email!)),
+  //         ListTile(
+  //           title: Text("Home Page"),
+  //           leading: Icon(Icons.home),
+  //         ),
+  //         ListTile(
+  //           title: Text("Trending Page"),
+  //           leading: Icon(Icons.trending_up),
+  //         ),
+  //         ListTile(
+  //           onTap: () {
+  //             Navigator.of(context).push(
+  //                 MaterialPageRoute(builder: (context) => SettingsPage()));
+  //           },
+  //           title: Text("Settings Page"),
+  //           leading: Icon(Icons.settings),
+  //         ),
+  //         ListTile(
+  //           title: Text("About Page"),
+  //           leading: Icon(Icons.person),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
 //!separate widgets
   _tile(DocumentSnapshot snapshot) {

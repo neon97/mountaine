@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/constant.dart';
+import 'package:projectflutter/controller/emailSignin.dart';
+import 'package:projectflutter/widgets/loader.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -259,16 +261,22 @@ class _RegisterPageState extends State<RegisterPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        if (_password.text == _confirmPass.text) {
-                          print("we are good to go");
-                        } else {
-                          _password.clear();
-                          _confirmPass.clear();
-                          print("you need to check your password");
-                        }
-                      }
+                    onPressed: () async {
+                      loader(context);
+                      AuthenticationService _authService =
+                          AuthenticationService(auth);
+                      var response = await _authService.signUp(
+                          _email.text, _password.text);
+                      Navigator.pop(context);
+                      // if (_formKey.currentState!.validate()) {
+                      //   if (_password.text == _confirmPass.text) {
+                      //     print("we are good to go");
+                      //   } else {
+                      //     _password.clear();
+                      //     _confirmPass.clear();
+                      //     print("you need to check your password");
+                      //   }
+                      // }
                     },
                     child: Text("Register")),
               ),

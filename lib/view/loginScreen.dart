@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectflutter/api.dart';
 import 'package:projectflutter/constant.dart';
+import 'package:projectflutter/controller/emailSignin.dart';
 import 'package:projectflutter/models/LoginModel.dart';
 import 'package:projectflutter/networkHelper.dart';
 import 'package:projectflutter/view/homescreen.dart';
@@ -18,6 +21,9 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameCntrl = TextEditingController();
   final _passCntrl = TextEditingController();
   bool _visibility = true;
+
+  //!datatypes
+  bool _mobileEmail = true;
 
   //!key
   final _formkey = GlobalKey<FormState>(); //! this is the random key for me
@@ -49,15 +55,45 @@ class _LoginPageState extends State<LoginPage> {
                   fontSize: 40, fontWeight: FontWeight.bold),
             ),
 
+//!switch button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Mobile No",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                CupertinoSwitch(
+                    value: _mobileEmail,
+                    onChanged: (value) {
+                      setState(() {
+                        _mobileEmail = value;
+                        _usernameCntrl.clear();
+                        _passCntrl.clear();
+                      });
+                    }),
+                Text(
+                  "Email",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+
             Form(
                 key: _formkey,
                 child: Column(
                   children: [
-//!mobile no
+//!mobile no & email
                     TextFormField(
                       controller: _usernameCntrl,
-                      keyboardType: TextInputType.number,
-                      maxLength: 10,
+                      keyboardType: !_mobileEmail
+                          ? TextInputType.number
+                          : TextInputType.emailAddress,
+                      maxLength: !_mobileEmail ? 10 : null,
                       validator: (value) {
                         if (value == "" || value == null) {
                           return "Field Left Empty";
@@ -66,11 +102,10 @@ class _LoginPageState extends State<LoginPage> {
                         }
                       },
                       decoration: InputDecoration(
-                          prefixText: "+91 - ",
                           label: Text(
-                            "Mobile No",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
+                        !_mobileEmail ? "Mobile No" : "Email",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )),
                     ),
 
                     SizedBox(
@@ -144,35 +179,66 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  apiValiadtion() async {
+    loginGlobalModel = await _getLogin();
+    //!removing the loader as we have got the reponse from api
+    Navigator.pop(context);
+    if (loginGlobalModel!.status! == "true") {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Homescreenpage()));
+    } else {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => AlertDialog(
+                title: Text("Alert !!"),
+                content: Text(loginGlobalModel!.messageinfo!),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("OK"))
+                ],
+              ));
+    }
+  }
+
+  firebaseValidation() async {
+    AuthenticationService _authService = AuthenticationService(auth);
+    var response =
+        await _authService.signIn(_usernameCntrl.text, _passCntrl.text);
+    Navigator.pop(context);
+
+    if (response == "Signed In") {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => Homescreenpage()));
+    } else {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => AlertDialog(
+                title: Text("Alert !!"),
+                content: Text(response),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("OK"))
+                ],
+              ));
+    }
+  }
+
   _loginValidation() async {
     if (_formkey.currentState!.validate()) {
       //! loader i have show here
       loader(context);
-      loginGlobalModel = await _getLogin();
-
-      //!removing the loader as we have got the reponse from api
-      Navigator.pop(context);
-      if (loginGlobalModel!.status! == "true") {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => Homescreenpage(
-                  loginModel: loginGlobalModel!,
-                )));
-      } else {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text("Alert !!"),
-                  content: Text(loginGlobalModel!.messageinfo!),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("OK"))
-                  ],
-                ));
-      }
+      if (!_mobileEmail)
+        apiValiadtion();
+      else
+        firebaseValidation();
     }
   }
 }
