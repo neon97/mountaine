@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/constant.dart';
-import 'package:projectflutter/controller/emailSignin.dart';
+import 'package:projectflutter/main.dart';
 import 'package:projectflutter/widgets/loader.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -263,9 +263,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                     onPressed: () async {
                       loader(context);
-                      AuthenticationService _authService =
-                          AuthenticationService(auth);
-                      var response = await _authService.signUp(
+                      await authServiceEmailPass.signUp(
                           _email.text, _password.text);
                       Navigator.pop(context);
                       // if (_formKey.currentState!.validate()) {

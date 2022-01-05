@@ -1,11 +1,11 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:projectflutter/controller/emailSignin.dart';
+import 'package:projectflutter/controller/blogListCrontroller.dart';
+import 'package:projectflutter/main.dart';
 import 'package:projectflutter/models/BloglistModel.dart';
-import 'package:projectflutter/models/LoginModel.dart';
 import 'package:projectflutter/view/addBlogPage.dart';
 import 'package:projectflutter/view/blogDetailScreen.dart';
-import 'package:projectflutter/view/settingsPage.dart';
 
 class Homescreenpage extends StatefulWidget {
   // final LoginModel loginModel;
@@ -20,51 +20,86 @@ class _HomescreenpageState extends State<Homescreenpage> {
 
   @override
   Widget build(BuildContext context) {
-    print("calling the homescreen state");
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Hompage"),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.chat))],
-      ),
-      body: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.all(10),
-          child: StreamBuilder<QuerySnapshot>(
-              //! who builds the contimius flow data and it renders it to the ui
-              stream: _blogRepo.getBlogData(),
-              builder: (context, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snap.hasData) {
-                  if (snap.data!.docs.isEmpty)
-                    return Center(
-                      child: Text("No Blogs Added Yet !!"),
-                    );
-                  else
-                    return _buildList(snap.data!.docs);
-                  //! snap.data is a collection names as blogs
-                  //! blogs i am calling docs
-                  //! docs will give me the list of data
-                } else {
-                  return Center(
-                    child: Text("${snap.error}"),
-                  );
-                }
-              })),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddBlogPage()));
-        },
-        child: Icon(
-          Icons.add,
+    return WillPopScope(
+      onWillPop: () async {
+        _showAlertToExit();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text("Hompage"),
+          actions: [
+            IconButton(
+                onPressed: () async {
+                  await authServiceEmailPass.singOut(context);
+                },
+                icon: Icon(Icons.chat))
+          ],
         ),
+        body: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            margin: EdgeInsets.all(10),
+            child: StreamBuilder<QuerySnapshot>(
+                //! who builds the contimius flow data and it renders it to the ui
+                stream: _blogRepo.getBlogData(),
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snap.hasData) {
+                    if (snap.data!.docs.isEmpty)
+                      return Center(
+                        child: Text("No Blogs Added Yet !!"),
+                      );
+                    else
+                      return _buildList(snap.data!.docs);
+                    //! snap.data is a collection names as blogs
+                    //! blogs i am calling docs
+                    //! docs will give me the list of data
+                  } else {
+                    return Center(
+                      child: Text("${snap.error}"),
+                    );
+                  }
+                })),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => AddBlogPage()));
+          },
+          child: Icon(
+            Icons.add,
+          ),
+        ),
+        // drawer: _drawer(),
       ),
-      // drawer: _drawer(),
     );
+  }
+
+  _showAlertToExit() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Alert"),
+            content: Text("Do you want to exit the application?"),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(exit(0));
+                  },
+                  child: Text("Yes")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("No"))
+            ],
+          );
+        });
   }
 
   Widget _buildList(List<DocumentSnapshot>? snapshot) {

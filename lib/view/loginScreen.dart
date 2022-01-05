@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectflutter/api.dart';
 import 'package:projectflutter/constant.dart';
-import 'package:projectflutter/controller/emailSignin.dart';
+import 'package:projectflutter/main.dart';
 import 'package:projectflutter/models/LoginModel.dart';
 import 'package:projectflutter/networkHelper.dart';
 import 'package:projectflutter/view/homescreen.dart';
@@ -205,21 +204,40 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   firebaseValidation() async {
-    AuthenticationService _authService = AuthenticationService(auth);
     var response =
-        await _authService.signIn(_usernameCntrl.text, _passCntrl.text);
-    Navigator.pop(context);
+        await authServiceEmailPass.signIn(_usernameCntrl.text, _passCntrl.text);
+    var userData = await authServiceEmailPass.getUser();
 
-    if (response == "Signed In") {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => Homescreenpage()));
+    Navigator.pop(context);
+    if (userData!.emailVerified) {
+      if (response == "Signed In") {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Homescreenpage()));
+      } else {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text("Alert !!"),
+                  content: Text(response),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("OK"))
+                  ],
+                ));
+      }
     } else {
+      await userData.sendEmailVerification();
       showDialog(
           barrierDismissible: false,
           context: context,
           builder: (context) => AlertDialog(
                 title: Text("Alert !!"),
-                content: Text(response),
+                content: Text(
+                    "Please verify your Email\nWe have sended an Email for verification"),
                 actions: [
                   TextButton(
                       onPressed: () {

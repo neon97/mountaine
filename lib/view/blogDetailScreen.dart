@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/constant.dart';
+import 'package:projectflutter/controller/blogListCrontroller.dart';
 import 'package:projectflutter/models/BloglistModel.dart';
 
 class BlogDetailPage extends StatefulWidget {

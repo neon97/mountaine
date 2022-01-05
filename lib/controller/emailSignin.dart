@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:projectflutter/view/loginScreen.dart';
+import 'package:projectflutter/widgets/loader.dart';
 
 var auth = FirebaseAuth.instance;
 
@@ -32,9 +35,12 @@ class AuthenticationService {
   }
 
   //!singout
-  singOut() async {
+  singOut(BuildContext context) async {
+    loader(context);
     try {
       await _firebaseAuth.signOut();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginPage()));
     } on FirebaseAuthException catch (e) {
       print(e.message);
     }
@@ -45,6 +51,7 @@ class AuthenticationService {
     try {
       return _firebaseAuth.currentUser;
     } on FirebaseAuthException catch (e) {
+      print(e);
       return null;
     }
   }
