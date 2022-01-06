@@ -1,10 +1,15 @@
 import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:projectflutter/constant.dart';
 import 'package:projectflutter/controller/blogListCrontroller.dart';
+import 'package:projectflutter/controller/storageController.dart';
 import 'package:projectflutter/models/BloglistModel.dart';
+import 'package:projectflutter/view/homescreen.dart';
+import 'package:projectflutter/widgets/loader.dart';
+import 'package:projectflutter/widgets/popup.dart';
 
 class AddBlogPage extends StatefulWidget {
   @override
@@ -60,47 +65,65 @@ class _AddBlogPageState extends State<AddBlogPage> {
                       child: Image.file(File(_image!.path))),
             ),
 
-//!image dummy
-            TextFormField(
-              controller: image,
-            ),
-
 //!mountain name
             TextFormField(
               controller: mountName,
+              decoration: InputDecoration(labelText: "Mount Name"),
             ),
 
 //!description
             TextFormField(
               controller: description,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: "Description"),
             ),
 
 //!statments
             TextFormField(
               controller: statement,
+              maxLines: 3,
+              decoration: InputDecoration(labelText: "Statements"),
             ),
 
 //!create button
             ElevatedButton(
                 onPressed: () async {
+                  var imageUrl = await _uploadingImageSection();
                   BlogListModel _blog = BlogListModel(
                       description: description.text,
-                      image: image.text,
+                      image: imageUrl,
                       liked: false,
                       likes: 0,
                       mountName: mountName.text,
                       statement: statement.text,
-                      bloggerName: loginGlobalModel!.bloggerName!);
+                      bloggerName: "Akhand");
                   BlogListModelDataRepo _blogController =
                       BlogListModelDataRepo();
                   await _blogController.createBlogData(_blog);
                   Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Homescreenpage()));
                 },
                 child: Text("Post Blog"))
           ],
         ),
       ),
     );
+  }
+
+  _uploadingImageSection() async {
+    StorageModule _uploader = StorageModule(storage);
+    loader(context);
+    var response =
+        await _uploader.uploadImage(File(_image!.path), _image!.name);
+    if (response is TaskSnapshot) {
+      var url = await _uploader.getUrlOfUploadedImage(response);
+      return url;
+    } else if (response is FirebaseException) {
+      popup(context, response.message!);
+    }
   }
 
   Widget _accesImage() {

@@ -40,6 +40,7 @@ dependencies:
   firebase_core:
   cloud_firestore:
   firebase_auth:
+  firebase_storage:
   # url_launcher:
 
 dev_dependencies:
